@@ -1,1 +1,4 @@
 ckpt/
+output/
+data/*
+!data/*.jpg
