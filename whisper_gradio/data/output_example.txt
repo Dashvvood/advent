@@ -1,0 +1,13 @@
+{'text': ' Il a beaucoup pas pris des autres.',
+ 'segments': [{'id': 0,
+   'seek': 0,
+   'start': 0.0,
+   'end': 1.4000000000000001,
+   'text': ' Il a beaucoup pas pris des autres.',
+   'tokens': [50364, 4416, 257, 8796, 1736, 16163, 730, 17093, 13, 50434],
+   'temperature': 0.0,
+   'avg_logprob': -0.4062481793490323,
+   'compression_ratio': 0.8095238095238095,
+   'no_speech_prob': 0.00293371151201427}],
+ 'language': 'fr'}
+ 

@@ -1,0 +1,5 @@
+OUTPUT_DIR = "../output/"
+LOG_PATH = "../app.log"
+# MODEL_NAME = "large-v2"
+MODEL_NAME = "small"
+MODEL_ROOT = "../ckpt/"
