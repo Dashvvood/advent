@@ -69,6 +69,69 @@ def process_one_image(args,
 
     # if there is no instance detected, return None
     return data_samples.get('pred_instances', None)
+    
+
+def process_one_video(
+    args,
+    filename,
+    detector, 
+    pose_estimator, 
+    visualizer=None
+):
+    input_file = os.path.join(args.input_root, filename)
+    output_file = os.path.join(args.output_video_root, filename)
+    pred_save_path = os.path.join(args.output_pred_root, os.path.splitext(filename)[0]+".json")
+
+    cap = cv2.VideoCapture(input_file)
+    video_writer = None
+    pred_instances_list = []
+    frame_idx = 0
+
+    while cap.isOpened():
+        success, frame = cap.read()
+        frame_idx += 1
+        if not success:
+            break
+        pred_instances = process_one_image(
+            args, frame, detector,
+            pose_estimator, visualizer,0.001
+        )
+
+        pred_instances_list.append(
+            dict(
+                frame_id=frame_idx,
+                instances=split_instances(pred_instances)
+            )
+        )
+
+        frame_vis = visualizer.get_image()
+
+        if video_writer is None:
+            fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+            # the size of the image with visualization may vary
+            # depending on the presence of heatmaps
+            video_writer = cv2.VideoWriter(
+                output_file,
+                fourcc,
+                args.output_fps,  # saved fps
+                (frame_vis.shape[1], frame_vis.shape[0]))
+
+        video_writer.write(mmcv.rgb2bgr(frame_vis))
+
+    video_writer.release()
+    cap.release()
+    
+    with open(pred_save_path, 'w') as f:
+        json.dump(
+            dict(
+                meta_info=pose_estimator.dataset_meta,
+                instance_info=pred_instances_list
+            ), f, indent='\t'
+        )
+    print(f"predictions have been saved at {pred_save_path}")
+    print(f"the output has been saved at {output_file}")
+
+    return True
 
 
 def main():
