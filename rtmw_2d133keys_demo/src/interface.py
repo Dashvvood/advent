@@ -95,15 +95,15 @@ def reload_args(args, pose_estimator, checkbox_group, bbox_thr, nms_thr, kpt_thr
     args.thickness = thickness
     args.alpha = alpha
     args.output_fps = output_fps
-    
+
     pose_estimator.cfg.visualizer.radius = args.radius
     pose_estimator.cfg.visualizer.alpha = args.alpha
     pose_estimator.cfg.visualizer.line_width = args.thickness
-    
+
     args.visualizer = VISUALIZERS.build(pose_estimator.cfg.visualizer)
     args.visualizer.set_dataset_meta(
         pose_estimator.dataset_meta, skeleton_style=args.skeleton_style)
-    
+
     return args
 
 def process_one_video(
@@ -191,7 +191,6 @@ def api_image(args, img, detector, pose_estimator):
 def api_video(args, video, detector, pose_estimator):
     return process_one_video(args, video, detector, pose_estimator, args.visualizer)
 
-
 with gr.Blocks() as demo:
     
     # states input
@@ -207,10 +206,10 @@ with gr.Blocks() as demo:
                 label="Select Pose Configuration", 
                 value=POSE_CONFIG_DEFAULT,
             )
-            
+
             pose_output = gr.Textbox()
             pose_btn = gr.Button("Load Pose Model")
-            
+
         with gr.Column():
             det_conf = gr.Dropdown(
                 choices=list(DET_CONFIGS.keys()), 
@@ -228,7 +227,7 @@ with gr.Blocks() as demo:
             return type(model)
         pose_estimator.change(fn=_model_to_textbox, inputs=pose_estimator, outputs=pose_output)
         detector.change(fn=_model_to_textbox, inputs=detector, outputs=det_output)
-        
+
     with gr.Accordion("More Settings", open=False):
         with gr.Row():
             checkbox_group = gr.CheckboxGroup(
@@ -236,12 +235,13 @@ with gr.Blocks() as demo:
                 value=[],
                 label="Visualization Options"
             )
+
         with gr.Row():
             bbox_thr = gr.Number(label="Bounding Box Threshold", value=0.3)
             nms_thr = gr.Number(label="NMS Threshold", value=0.3)
             kpt_thr = gr.Number(label="Keypoint Threshold", value=0.5)
             radius = gr.Number(label="Radius", value=3)
-            
+
         with gr.Row():
             thickness = gr.Number(label="Thickness", value=1)
             alpha = gr.Number(label="Alpha", value=0.8)
@@ -249,7 +249,7 @@ with gr.Blocks() as demo:
             det_cat_id = gr.Number(label="Category ID for Bounding Box Detection Model", value=0)
             skeleton_style = gr.Dropdown(choices=['mmpose', 'openpose'], label="Select Skeleton Style", value='mmpose')
             more_btn = gr.Button("Update Options")
-            
+
         with gr.Row():
             more_output = gr.Textbox(value=str(args))
             more_btn.click(
@@ -258,32 +258,31 @@ with gr.Blocks() as demo:
                 outputs=args
             )
             args.change(fn=_object_to_textbox, inputs=args, outputs=more_output)
-            
+
     with gr.Row():
         img1 = gr.Image()
         img2 = gr.Image()
-    
+
     with gr.Row():
         process_img_btn = gr.Button("Process Image", scale=2)
-        
+
     with gr.Accordion("Prediction Data", open=False):
         json1 = gr.JSON()
-        
-    process_img_btn.click(fn=api_image, inputs=[img1], outputs=[json1, img2])
+
+    process_img_btn.click(fn=api_image, inputs=[args, img1, detector, pose_estimator], outputs=[json1, img2])
 
     with gr.Row():
         video1 = gr.Video()
         video2 = gr.Video()
-    
+
     with gr.Row():
         # json2 = gr.JSON()
         file1 = gr.File(label="Prediction Data")
-        
+
     with gr.Row():
         process_video_btn = gr.Button("Process Video", scale=2)
-        
-    process_video_btn.click(fn=api_video, inputs=[video1], outputs=[file1, video2])
-    
+
+    process_video_btn.click(fn=api_video, inputs=[args, video1, detector, pose_estimator], outputs=[file1, video2])
 
 if __name__ == '__main__':
     demo.launch(show_error=True)
