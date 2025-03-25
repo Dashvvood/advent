@@ -1,7 +1,5 @@
 ### Whisper
 
-Official Repository: https://github.com/openai/whisper/tree/main
-
 **Requirement :**
 
 ```shell
@@ -16,7 +14,11 @@ conda activate whisper
 pip3 install openai-whisper gradio
 ```
 
-**Example cli**
+Official Repository: https://github.com/openai/whisper/tree/main
+
+
+
+**Example**
 
 ```shell
 whisper example.wav \
@@ -25,3 +27,4 @@ whisper example.wav \
 	--task transcribe \
 	--language French
 ```
+
