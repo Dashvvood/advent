@@ -1,11 +1,17 @@
 import gradio as gr
 import whisper
+import yaml
+
+config = yaml.safe_load(open("config.yaml", 'r'))
+
+model = whisper.load_model(
+    name=config["model"]["model_name"], 
+    device=config["model"]["device"], 
+    download_root=config["model"]["model_dir"]
+)
 
 
-model = whisper.load_model(name="small", device="cuda:0", download_root="../ckpt/")
-
-
-def transcribe(audio_file, language):
+def transcribe(audio_file, language=None):
     if language is None:
         result = model.transcribe(audio_file)
     else:
@@ -22,9 +28,12 @@ def main():
     text_output = gr.Textbox()
     
     interface = gr.Interface(fn=transcribe, inputs=[audio_input, lan_input], 
-                         outputs=[text_output], title="Whisper Transcription",
+                         outputs=text_output, title="Whisper Transcription",
                          description="Upload audio")
-    interface.launch(server_name="127.0.0.1", server_port=7861)
+    interface.launch(
+        server_name=config["app"]["server_name"], 
+        server_port=config["app"]["server_port"]
+    )
 
 
 if __name__ == '__main__':
